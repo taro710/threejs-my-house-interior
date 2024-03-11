@@ -6,6 +6,9 @@ import particlesVertexShader from "./shaders/particles/vertex.glsl";
 import particlesFragmentShader from "./shaders/particles/fragment.glsl";
 import tvVertexShader from "./shaders/tv/vertex.glsl";
 import tvFragmentShader from "./shaders/tv/fragment.glsl";
+import overlayVertexShader from "./shaders/overlay/vertex.glsl";
+import overlayFragmentShader from "./shaders/overlay/fragment.glsl";
+import gsap from "gsap";
 
 /**
  * Base
@@ -18,10 +21,39 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 /**
- * Loaders
+ * Sizes
  */
-// Texture loader
-const textureLoader = new THREE.TextureLoader();
+const sizes = {
+  width: window.innerWidth,
+  height: window.innerHeight,
+};
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(
+  45,
+  sizes.width / sizes.height,
+  0.1,
+  100
+);
+camera.position.x = -2;
+camera.position.y = 6.5;
+camera.position.z = 4;
+
+scene.add(camera);
+
+// // Cube render target
+// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+//   type: THREE.FloatType,
+// });
+
+// scene.environment = cubeRenderTarget.texture;
+
+// // Cube camera
+// const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
+
+// cubeCamera.layers.set(1);
 
 /**
  * Environment map
@@ -43,12 +75,53 @@ const textureLoader = new THREE.TextureLoader();
 // scene.environment = environmentMap;
 // scene.background = environmentMap;
 
+// Controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.target.set(-0.5, 1.2, 0);
+
+/**
+ * Loaders
+ */
+const loadingManager = new THREE.LoadingManager(
+  () => {
+    gsap.to(overlayMaterial.uniforms.uAlpha, {
+      duration: 1,
+      value: 0,
+      delay: 0.3,
+    });
+
+    gsap.to(camera.position, {
+      duration: 1,
+      x: -4.0,
+      delay: 0.3,
+    });
+    gsap.to(camera.position, {
+      duration: 1,
+      y: 1.8,
+      delay: 0.3,
+    });
+    gsap.to(camera.position, {
+      duration: 1,
+      z: 3.2,
+      delay: 0.3,
+    });
+    console.log("Loading complete");
+  },
+  () => {
+    console.log("Loading is in progress");
+  }
+);
+
+// Texture loader
+const textureLoader = new THREE.TextureLoader(loadingManager);
+
 // Draco loader
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("draco/");
 
 // GLTF loader
-const gltfLoader = new GLTFLoader();
+const gltfLoader = new GLTFLoader(loadingManager);
 gltfLoader.setDRACOLoader(dracoLoader);
 
 /**
@@ -114,6 +187,19 @@ tv.position.set(-1.39, 0.95, -2.59);
 tv.rotateY(0.5235988354713379);
 scene.add(tv);
 
+// Overlay
+const overlayGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
+const overlayMaterial = new THREE.ShaderMaterial({
+  transparent: true,
+  uniforms: {
+    uAlpha: { value: 1.0 },
+  },
+  vertexShader: overlayVertexShader,
+  fragmentShader: overlayFragmentShader,
+});
+const overlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+scene.add(overlay);
+
 /**
  * Model
  */
@@ -128,7 +214,6 @@ gltfLoader.load("myroom.glb", (gltf) => {
     } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
       child.material = sofaMaterial;
     } else if (["LampBulb"].includes(child.name)) {
-      console.log(child.name);
       child.material = lightBulb;
     } else {
       child.material = bakedMaterial;
@@ -182,14 +267,6 @@ particles.position.y = 0.8;
 
 scene.add(particles);
 
-/**
- * Sizes
- */
-const sizes = {
-  width: window.innerWidth,
-  height: window.innerHeight,
-};
-
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
@@ -205,38 +282,6 @@ window.addEventListener("resize", () => {
     2
   );
 });
-
-/**
- * Camera
- */
-// Base camera
-const camera = new THREE.PerspectiveCamera(
-  45,
-  sizes.width / sizes.height,
-  0.1,
-  100
-);
-camera.position.x = -5.0477398991704545;
-camera.position.y = 3.9258751767715205;
-camera.position.z = 3.584292949472373;
-
-scene.add(camera);
-
-// // Cube render target
-// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
-//   type: THREE.FloatType,
-// });
-
-// scene.environment = cubeRenderTarget.texture;
-
-// // Cube camera
-// const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
-// cubeCamera.layers.set(1);
-
-// Controls
-const controls = new OrbitControls(camera, canvas);
-
-controls.enableDamping = true;
 
 /**
  * Renderer
