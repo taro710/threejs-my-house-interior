@@ -82,10 +82,10 @@ const metalMaterial = new THREE.MeshPhysicalMaterial({
   ior: 0.95,
 });
 
-const pointLight1 = new THREE.DirectionalLight(0xffffff, 1, 200);
+const pointLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
 pointLight1.position.set(0, 4, -2);
 scene.add(pointLight1);
-const pointLight2 = new THREE.DirectionalLight(0xffffff, 2, 200);
+const pointLight2 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
 pointLight2.position.set(-4, 1, 2);
 scene.add(pointLight2);
 
@@ -225,6 +225,17 @@ camera.position.z = 3.584292949472373;
 
 scene.add(camera);
 
+// // Cube render target
+// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+//   type: THREE.FloatType,
+// });
+
+// scene.environment = cubeRenderTarget.texture;
+
+// // Cube camera
+// const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
+// cubeCamera.layers.set(1);
+
 // Controls
 const controls = new OrbitControls(camera, canvas);
 
@@ -251,6 +262,7 @@ const tick = () => {
   shaderMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
 
+  // cubeCamera.update(renderer, scene);
   controls.update();
 
   renderer.render(scene, camera);
