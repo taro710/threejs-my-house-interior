@@ -4,6 +4,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import particlesVertexShader from "./shaders/particles/vertex.glsl";
 import particlesFragmentShader from "./shaders/particles/fragment.glsl";
+import tvVertexShader from "./shaders/tv/vertex.glsl";
+import tvFragmentShader from "./shaders/tv/fragment.glsl";
 
 /**
  * Base
@@ -92,6 +94,22 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
   color: 0x534719,
   roughness: 0.5,
 });
+
+// TVモニター
+const shaderMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+  },
+  vertexShader: tvVertexShader,
+  fragmentShader: tvFragmentShader,
+  side: THREE.DoubleSide,
+});
+
+const geometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
+const tv = new THREE.Mesh(geometry, shaderMaterial);
+tv.position.set(-1.39, 0.938, -2.59);
+tv.rotateY(0.5235988354713379);
+scene.add(tv);
 
 /**
  * Model
@@ -204,9 +222,6 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.x = -5.0477398991704545;
 camera.position.y = 3.9258751767715205;
 camera.position.z = 3.584292949472373;
-camera.rotation.x = -0.37661660296961064;
-camera.rotation.y = -0.7826405636482832;
-camera.rotation.z = -0.271974320982447;
 
 scene.add(camera);
 
@@ -233,6 +248,7 @@ const clock = new THREE.Clock();
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
+  shaderMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
 
   controls.update();
