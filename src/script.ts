@@ -107,7 +107,7 @@ const shaderMaterial = new THREE.ShaderMaterial({
 
 const geometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
 const tv = new THREE.Mesh(geometry, shaderMaterial);
-tv.position.set(-1.39, 0.938, -2.59);
+tv.position.set(-1.39, 0.95, -2.59);
 tv.rotateY(0.5235988354713379);
 scene.add(tv);
 
