@@ -95,6 +95,9 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
   roughness: 0.5,
 });
 
+// 淡いオレンジ
+const lightBulb = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
 // TVモニター
 const shaderMaterial = new THREE.ShaderMaterial({
   uniforms: {
@@ -105,8 +108,8 @@ const shaderMaterial = new THREE.ShaderMaterial({
   side: THREE.DoubleSide,
 });
 
-const geometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
-const tv = new THREE.Mesh(geometry, shaderMaterial);
+const tVGeometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
+const tv = new THREE.Mesh(tVGeometry, shaderMaterial);
 tv.position.set(-1.39, 0.95, -2.59);
 tv.rotateY(0.5235988354713379);
 scene.add(tv);
@@ -116,23 +119,17 @@ scene.add(tv);
  */
 gltfLoader.load("myroom.glb", (gltf) => {
   scene.add(gltf.scene);
-  //   console.log(gltf.scene.children);
 
   gltf.scene.traverse((child) => {
-    if (child.name === "Cube004") {
+    if (["CoffeeTable"].includes(child.name)) {
       child.material = tableMaterial;
-    } else if (
-      child.name === "Cube009" ||
-      child.name === "Cube010" ||
-      child.name === "Cylinder018" ||
-      child.name === "TV_reg1" ||
-      child.name === "TV_reg2"
-    ) {
+    } else if (["TVReg", "BarcelonaReg", "SofaReg"].includes(child.name)) {
       child.material = metalMaterial;
-    } else if (child.name === "Cylinder013") {
-      child.material.side = THREE.DoubleSide;
-    } else if (child.name === "Cube007" || child.name === "Cube008") {
+    } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
       child.material = sofaMaterial;
+    } else if (["LampBulb"].includes(child.name)) {
+      console.log(child.name);
+      child.material = lightBulb;
     } else {
       child.material = bakedMaterial;
     }
