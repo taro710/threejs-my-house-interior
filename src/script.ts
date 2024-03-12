@@ -43,29 +43,7 @@ camera.position.z = 4;
 
 scene.add(camera);
 
-// // Cube render target
-// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
-//   type: THREE.FloatType,
-// });
-
-// scene.environment = cubeRenderTarget.texture;
-
-// // Cube camera
-// const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
-
 // cubeCamera.layers.set(1);
-
-/**
- * Environment map
- */
-// scene.backgroundBlurriness = 0;
-// scene.backgroundIntensity = 1;
-
-// const environmentMap = textureLoader.load("/environmentMaps/environment.jpeg");
-// environmentMap.mapping = THREE.EquirectangularReflectionMapping;
-// environmentMap.colorSpace = THREE.SRGBColorSpace;
-
-// scene.background = environmentMap;
 
 // const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
 //   type: THREE.FloatType,
@@ -116,6 +94,17 @@ const loadingManager = new THREE.LoadingManager(
 // Texture loader
 const textureLoader = new THREE.TextureLoader(loadingManager);
 
+// /**
+//  * Environment map
+//  */
+const environmentMap = textureLoader.load("/environmentMaps/environment.jpg");
+environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap.colorSpace = THREE.SRGBColorSpace;
+
+const environmentMap2 = textureLoader.load("/environmentMaps/environment2.jpg");
+environmentMap2.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap2.colorSpace = THREE.SRGBColorSpace;
+
 // Draco loader
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("draco/");
@@ -142,7 +131,8 @@ const tableMaterial = new THREE.MeshPhysicalMaterial({
   roughness: 0,
   transmission: 0.95,
   opacity: 1,
-  ior: 0.95,
+  ior: 1.95,
+  envMap: environmentMap2,
 });
 
 const metalMaterial = new THREE.MeshPhysicalMaterial({
@@ -152,7 +142,8 @@ const metalMaterial = new THREE.MeshPhysicalMaterial({
   clearcoat: 1,
   transmission: 0.95,
   opacity: 1,
-  ior: 0.95,
+  ior: 1,
+  envMap: environmentMap,
 });
 
 const pointLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
