@@ -97,11 +97,11 @@ const textureLoader = new THREE.TextureLoader(loadingManager);
 // /**
 //  * Environment map
 //  */
-const environmentMap = textureLoader.load("environment.jpg");
+const environmentMap = textureLoader.load("environment/environment.jpg");
 environmentMap.mapping = THREE.EquirectangularReflectionMapping;
 environmentMap.colorSpace = THREE.SRGBColorSpace;
 
-const environmentMap2 = textureLoader.load("environment2.jpg");
+const environmentMap2 = textureLoader.load("environment/environment2.jpg");
 environmentMap2.mapping = THREE.EquirectangularReflectionMapping;
 environmentMap2.colorSpace = THREE.SRGBColorSpace;
 
