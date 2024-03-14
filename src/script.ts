@@ -43,12 +43,12 @@ camera.position.z = 4;
 
 scene.add(camera);
 
-const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
-  type: THREE.FloatType,
-});
-const cubeCamera = new THREE.CubeCamera(1, 100, cubeRenderTarget);
-scene.add(cubeCamera);
-cubeCamera.renderTarget.mapping = THREE.CubeRefractionMapping;
+// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+//   type: THREE.FloatType,
+// });
+// const cubeCamera = new THREE.CubeCamera(1, 100, cubeRenderTarget);
+// scene.add(cubeCamera);
+// cubeCamera.renderTarget.mapping = THREE.CubeRefractionMapping;
 
 // cubeCamera.layers.set(1);
 
@@ -340,7 +340,6 @@ const tick = () => {
   shaderMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
 
-  cubeCamera.update(renderer, scene);
   controls.update();
 
   renderer.render(scene, camera);
