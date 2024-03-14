@@ -72,21 +72,21 @@ const loadingManager = new THREE.LoadingManager(
       delay: 0.3,
     });
 
-    // gsap.to(camera.position, {
-    //   duration: 1,
-    //   x: -4.0,
-    //   delay: 0.3,
-    // });
-    // gsap.to(camera.position, {
-    //   duration: 1,
-    //   y: 1.8,
-    //   delay: 0.3,
-    // });
-    // gsap.to(camera.position, {
-    //   duration: 1,
-    //   z: 3.2,
-    //   delay: 0.3,
-    // });
+    gsap.to(camera.position, {
+      duration: 1,
+      x: -4.0,
+      delay: 0.3,
+    });
+    gsap.to(camera.position, {
+      duration: 1,
+      y: 1.8,
+      delay: 0.3,
+    });
+    gsap.to(camera.position, {
+      duration: 1,
+      z: 3.2,
+      delay: 0.3,
+    });
 
     camera.position.x = -3.0788130905774542;
     camera.position.y = 0.9351603234032935;
@@ -161,10 +161,10 @@ const xtalMaterial = new THREE.MeshPhysicalMaterial({
   transmission: 0.95,
   transparent: true,
   ior: 1.75,
-  envMap: environmentMap2,
+  envMap: environmentMap,
   side: THREE.DoubleSide,
   // ダークグレー
-  color: 0x666666,
+  color: 0x555555,
   opacity: 1,
 });
 
@@ -179,17 +179,12 @@ const xtalMetalMaterial = new THREE.MeshPhysicalMaterial({
   side: THREE.DoubleSide,
 });
 
-const xtalLight = new THREE.MeshBasicMaterial({
-  color: 0xee7800,
-  emissive: 0xee7800,
-});
-
-const pointLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
-pointLight1.position.set(0, 4, -2);
-scene.add(pointLight1);
-const pointLight2 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
-pointLight2.position.set(-4, 1, 2);
-scene.add(pointLight2);
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
+directionalLight1.position.set(0, 4, -2);
+scene.add(directionalLight1);
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
+directionalLight2.position.set(-4, 1, 2);
+scene.add(directionalLight2);
 
 // sofaMaterial オリーブグリーン
 const sofaMaterial = new THREE.MeshPhysicalMaterial({
@@ -200,13 +195,20 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
 // 淡いオレンジ
 const lightBulb = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-const pointLight3 = new THREE.PointLight(0xee7800, 3, 200);
-pointLight3.position.set(
-  -2.697361707687378,
+const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
+pointLight1.position.set(
+  -2.707361707687378,
   0.8122639093399048,
-  2.7480459213256836
+  2.7580459213256836
 );
-// scene.add(pointLight3);
+scene.add(pointLight1);
+const pointLight2 = pointLight1.clone();
+pointLight2.position.set(
+  -2.687361707687378,
+  0.8122639093399048,
+  2.7380459213256836
+);
+scene.add(pointLight2);
 
 // TVモニター
 const shaderMaterial = new THREE.ShaderMaterial({
@@ -260,9 +262,6 @@ gltfLoader.load("myroom.glb", (gltf) => {
       child.material = xtalMaterial;
     } else if (["XtalMetal"].includes(child.name)) {
       child.material = xtalMetalMaterial;
-    } else if (["XtalLight"].includes(child.name)) {
-      child.material = xtalLight;
-      console.log(child.position);
     } else {
       child.material = bakedMaterial;
     }
