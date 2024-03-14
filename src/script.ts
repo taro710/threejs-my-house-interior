@@ -179,6 +179,8 @@ const xtalMetalMaterial = new THREE.MeshPhysicalMaterial({
   side: THREE.DoubleSide,
 });
 
+const xtalBulb = new THREE.MeshBasicMaterial({ color: 0xffa500 });
+
 const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
 directionalLight1.position.set(0, 4, -2);
 scene.add(directionalLight1);
@@ -251,6 +253,8 @@ gltfLoader.load("myroom.glb", (gltf) => {
       child.material = xtalMaterial;
     } else if (["XtalMetal"].includes(child.name)) {
       child.material = xtalMetalMaterial;
+    } else if (["XtalLight"].includes(child.name)) {
+      child.material = xtalBulb;
     } else {
       child.material = bakedMaterial;
     }
