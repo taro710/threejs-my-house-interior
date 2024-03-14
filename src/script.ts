@@ -196,19 +196,8 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
 const lightBulb = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
 const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
-pointLight1.position.set(
-  -2.707361707687378,
-  0.8122639093399048,
-  2.7580459213256836
-);
+pointLight1.position.set(-2.68, 0.81, 2.74);
 scene.add(pointLight1);
-const pointLight2 = pointLight1.clone();
-pointLight2.position.set(
-  -2.687361707687378,
-  0.8122639093399048,
-  2.7380459213256836
-);
-scene.add(pointLight2);
 
 // TVモニター
 const shaderMaterial = new THREE.ShaderMaterial({
