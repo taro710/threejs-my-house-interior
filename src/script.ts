@@ -43,11 +43,14 @@ camera.position.z = 4;
 
 scene.add(camera);
 
-// cubeCamera.layers.set(1);
+const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
+  type: THREE.FloatType,
+});
+const cubeCamera = new THREE.CubeCamera(1, 100, cubeRenderTarget);
+scene.add(cubeCamera);
+cubeCamera.renderTarget.mapping = THREE.CubeRefractionMapping;
 
-// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
-//   type: THREE.FloatType,
-// });
+// cubeCamera.layers.set(1);
 
 // scene.environment = cubeRenderTarget.texture;
 // scene.environment = environmentMap;
@@ -69,21 +72,25 @@ const loadingManager = new THREE.LoadingManager(
       delay: 0.3,
     });
 
-    gsap.to(camera.position, {
-      duration: 1,
-      x: -4.0,
-      delay: 0.3,
-    });
-    gsap.to(camera.position, {
-      duration: 1,
-      y: 1.8,
-      delay: 0.3,
-    });
-    gsap.to(camera.position, {
-      duration: 1,
-      z: 3.2,
-      delay: 0.3,
-    });
+    // gsap.to(camera.position, {
+    //   duration: 1,
+    //   x: -4.0,
+    //   delay: 0.3,
+    // });
+    // gsap.to(camera.position, {
+    //   duration: 1,
+    //   y: 1.8,
+    //   delay: 0.3,
+    // });
+    // gsap.to(camera.position, {
+    //   duration: 1,
+    //   z: 3.2,
+    //   delay: 0.3,
+    // });
+
+    camera.position.x = -3.0788130905774542;
+    camera.position.y = 0.9351603234032935;
+    camera.position.z = 3.41923123799197;
     console.log("Loading complete");
   },
   () => {
@@ -144,6 +151,37 @@ const metalMaterial = new THREE.MeshPhysicalMaterial({
   opacity: 1,
   ior: 1,
   envMap: environmentMap,
+  side: THREE.DoubleSide,
+});
+
+const xtalMaterial = new THREE.MeshPhysicalMaterial({
+  metalness: 0,
+  roughness: 0,
+  envMapIntensity: 1,
+  transmission: 0.95,
+  transparent: true,
+  ior: 1.75,
+  envMap: environmentMap2,
+  side: THREE.DoubleSide,
+  // ダークグレー
+  color: 0x666666,
+  opacity: 1,
+});
+
+const xtalMetalMaterial = new THREE.MeshPhysicalMaterial({
+  metalness: 1,
+  roughness: 0,
+  envMapIntensity: 1,
+  transmission: 1,
+  ior: 1.75,
+  envMap: environmentMap2,
+  color: 0xffa500,
+  side: THREE.DoubleSide,
+});
+
+const xtalLight = new THREE.MeshBasicMaterial({
+  color: 0xee7800,
+  emissive: 0xee7800,
 });
 
 const pointLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
@@ -161,6 +199,14 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
 
 // 淡いオレンジ
 const lightBulb = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+const pointLight3 = new THREE.PointLight(0xee7800, 3, 200);
+pointLight3.position.set(
+  -2.697361707687378,
+  0.8122639093399048,
+  2.7480459213256836
+);
+// scene.add(pointLight3);
 
 // TVモニター
 const shaderMaterial = new THREE.ShaderMaterial({
@@ -200,12 +246,23 @@ gltfLoader.load("myroom.glb", (gltf) => {
   gltf.scene.traverse((child) => {
     if (["CoffeeTable"].includes(child.name)) {
       child.material = tableMaterial;
-    } else if (["TVReg", "BarcelonaReg", "SofaReg"].includes(child.name)) {
+    } else if (
+      ["TVReg", "BarcelonaReg", "SofaReg", "DiningTableReg"].includes(
+        child.name
+      )
+    ) {
       child.material = metalMaterial;
     } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
       child.material = sofaMaterial;
     } else if (["LampBulb"].includes(child.name)) {
       child.material = lightBulb;
+    } else if (["Xtal"].includes(child.name)) {
+      child.material = xtalMaterial;
+    } else if (["XtalMetal"].includes(child.name)) {
+      child.material = xtalMetalMaterial;
+    } else if (["XtalLight"].includes(child.name)) {
+      child.material = xtalLight;
+      console.log(child.position);
     } else {
       child.material = bakedMaterial;
     }
@@ -295,7 +352,7 @@ const tick = () => {
   shaderMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
 
-  // cubeCamera.update(renderer, scene);
+  cubeCamera.update(renderer, scene);
   controls.update();
 
   renderer.render(scene, camera);
