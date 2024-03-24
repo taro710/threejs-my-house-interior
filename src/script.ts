@@ -240,9 +240,13 @@ gltfLoader.load("myroom.glb", (gltf) => {
     if (["CoffeeTable"].includes(child.name)) {
       child.material = tableMaterial;
     } else if (
-      ["TVReg", "BarcelonaReg", "SofaReg", "DiningTableReg"].includes(
-        child.name
-      )
+      [
+        "TVReg",
+        "BarcelonaReg",
+        "SofaReg",
+        "DiningTableReg",
+        "StepWire",
+      ].includes(child.name)
     ) {
       child.material = metalMaterial;
     } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
