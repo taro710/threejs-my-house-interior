@@ -138,7 +138,7 @@ const loadingManager = new THREE.LoadingManager(
 const textureLoader = new THREE.TextureLoader(loadingManager);
 
 const backGroundEnvironment = textureLoader.load(
-  "/environment/night_skyscraper.jpg"
+  "environment/night_skyscraper.jpg"
 );
 backGroundEnvironment.mapping = THREE.EquirectangularReflectionMapping;
 backGroundEnvironment.colorSpace = THREE.SRGBColorSpace;
