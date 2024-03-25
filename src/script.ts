@@ -142,6 +142,7 @@ const tableMaterial = new THREE.MeshPhysicalMaterial({
   envMap: environmentMap2,
 });
 
+// やや暖色寄りの反射
 const metalMaterial = new THREE.MeshPhysicalMaterial({
   metalness: 1,
   roughness: 0,
@@ -151,6 +152,19 @@ const metalMaterial = new THREE.MeshPhysicalMaterial({
   opacity: 1,
   ior: 1,
   envMap: environmentMap,
+  side: THREE.DoubleSide,
+});
+
+// シルバー寄りの反射
+const metalMaterial2 = new THREE.MeshPhysicalMaterial({
+  metalness: 1,
+  roughness: 0,
+  envMapIntensity: 0.9,
+  clearcoat: 1,
+  transmission: 0.95,
+  opacity: 1,
+  ior: 1,
+  envMap: environmentMap2,
   side: THREE.DoubleSide,
 });
 
@@ -239,16 +253,12 @@ gltfLoader.load("myroom.glb", (gltf) => {
   gltf.scene.traverse((child) => {
     if (["CoffeeTable"].includes(child.name)) {
       child.material = tableMaterial;
-    } else if (
-      [
-        "TVReg",
-        "BarcelonaReg",
-        "SofaReg",
-        "DiningTableReg",
-        "StepWire",
-      ].includes(child.name)
-    ) {
+    } else if (["BarcelonaReg"].includes(child.name)) {
       child.material = metalMaterial;
+    } else if (
+      ["TVReg", "SofaReg", "DiningTableReg", "StepWire"].includes(child.name)
+    ) {
+      child.material = metalMaterial2;
     } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
       child.material = sofaMaterial;
     } else if (["LampBulb"].includes(child.name)) {
