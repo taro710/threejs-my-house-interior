@@ -59,7 +59,16 @@ scene.add(camera);
 // Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-controls.target.set(-0.5, 1.2, 0);
+controls.minDistance = 2;
+controls.maxDistance = 10;
+
+controls.addEventListener("change", () => {
+  const distance = camera.position.distanceTo(
+    new THREE.Vector3(-1.4, 0.18, 0.07)
+  );
+  camera.fov = distance * 10;
+  camera.updateProjectionMatrix();
+});
 
 /**
  * Loaders
@@ -72,25 +81,52 @@ const loadingManager = new THREE.LoadingManager(
       delay: 0.3,
     });
 
-    gsap.to(camera.position, {
-      duration: 1,
-      x: -4.0,
-      delay: 0.3,
-    });
-    gsap.to(camera.position, {
-      duration: 1,
-      y: 1.8,
-      delay: 0.3,
-    });
-    gsap.to(camera.position, {
-      duration: 1,
-      z: 3.2,
-      delay: 0.3,
-    });
+    if (window.innerWidth > 768) {
+      camera.position.x = -3.07;
+      camera.position.y = 0.93;
+      camera.position.z = 3.41;
 
-    camera.position.x = -3.0788130905774542;
-    camera.position.y = 0.9351603234032935;
-    camera.position.z = 3.41923123799197;
+      gsap.to(camera.position, {
+        duration: 1,
+        x: -3.6,
+        delay: 0.3,
+      });
+      gsap.to(camera.position, {
+        duration: 1,
+        y: 2.2,
+        delay: 0.3,
+      });
+      gsap.to(camera.position, {
+        duration: 1,
+        z: 5.2,
+        delay: 0.3,
+      });
+
+      controls.target.set(-0.5, 1.2, 0);
+    } else {
+      camera.position.x = -3.07;
+      camera.position.y = 0.93;
+      camera.position.z = 3.41;
+
+      gsap.to(camera.position, {
+        duration: 1,
+        x: -1.0,
+        delay: 0.3,
+      });
+      gsap.to(camera.position, {
+        duration: 1,
+        y: 3.0,
+        delay: 0.3,
+      });
+      gsap.to(camera.position, {
+        duration: 1,
+        z: 7.2,
+        delay: 0.3,
+      });
+
+      controls.target.set(-1, 1.2, 0);
+    }
+
     console.log("Loading complete");
   },
   () => {
@@ -100,6 +136,13 @@ const loadingManager = new THREE.LoadingManager(
 
 // Texture loader
 const textureLoader = new THREE.TextureLoader(loadingManager);
+
+const backGroundEnvironment = textureLoader.load(
+  "/environment/night_skyscraper.jpg"
+);
+backGroundEnvironment.mapping = THREE.EquirectangularReflectionMapping;
+backGroundEnvironment.colorSpace = THREE.SRGBColorSpace;
+scene.background = backGroundEnvironment;
 
 // /**
 //  * Environment map
