@@ -209,7 +209,7 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
 });
 
 // 淡いオレンジ
-const lightBulb = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const lightBulb = new THREE.MeshBasicMaterial({ color: 0xfedcbd });
 
 const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
 pointLight1.position.set(-1.15, 0.81, 3.48);
@@ -251,7 +251,7 @@ gltfLoader.load("myroom.glb", (gltf) => {
   scene.add(gltf.scene);
 
   gltf.scene.traverse((child) => {
-    if (["CoffeeTable"].includes(child.name)) {
+    if (["CoffeeTable", "BottledGlass"].includes(child.name)) {
       child.material = tableMaterial;
     } else if (["BarcelonaReg"].includes(child.name)) {
       child.material = metalMaterial;
@@ -261,7 +261,7 @@ gltfLoader.load("myroom.glb", (gltf) => {
       child.material = metalMaterial2;
     } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
       child.material = sofaMaterial;
-    } else if (["LampBulb"].includes(child.name)) {
+    } else if (["LampBulb", "BottledLight"].includes(child.name)) {
       child.material = lightBulb;
     } else if (["Xtal"].includes(child.name)) {
       child.material = xtalMaterial;
