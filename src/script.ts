@@ -171,6 +171,25 @@ bakedTexture.flipY = false;
 bakedTexture.colorSpace = THREE.SRGBColorSpace;
 
 /**
+ * Raycaster
+ */
+const raycaster = new THREE.Raycaster();
+let currentIntersect = null;
+const rayOrigin = new THREE.Vector3(-3, 0, 0);
+const rayDirection = new THREE.Vector3(10, 0, 0);
+rayDirection.normalize();
+
+/**
+ * Mouse
+ */
+const mouse = new THREE.Vector2();
+
+window.addEventListener("mousemove", (event) => {
+  mouse.x = (event.clientX / sizes.width) * 2 - 1;
+  mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+});
+
+/**
  * Materials
  */
 // Baked material
@@ -291,6 +310,9 @@ scene.add(overlay);
  * Model
  */
 let mixer = null;
+let akabeko = null;
+let headAction: THREE.AnimationAction;
+let cornerAction: THREE.AnimationAction;
 gltfLoader.load("myroom.glb", (gltf) => {
   scene.add(gltf.scene);
 
@@ -313,6 +335,10 @@ gltfLoader.load("myroom.glb", (gltf) => {
       child.material = xtalMetalMaterial;
     } else if (["XtalLight"].includes(child.name)) {
       child.material = xtalBulb;
+    } else if (["AkabekoBody"].includes(child.name)) {
+      // TODO: findで抜き出す
+      akabeko = child;
+      child.material = bakedMaterial;
     } else {
       child.material = bakedMaterial;
     }
@@ -320,12 +346,28 @@ gltfLoader.load("myroom.glb", (gltf) => {
 
   // Animation
   mixer = new THREE.AnimationMixer(gltf.scene);
-  const headAction = mixer.clipAction(gltf.animations[0]);
-  const cornerAction = mixer.clipAction(gltf.animations[1]);
-
-  headAction.play();
-  cornerAction.play();
+  headAction = mixer.clipAction(gltf.animations[0]);
+  cornerAction = mixer.clipAction(gltf.animations[1]);
 });
+
+const akabekoAnimation = (isPlaying: boolean) => {
+  if (isPlaying) {
+    if (headAction.isRunning()) return;
+    if (cornerAction.isRunning()) return;
+    headAction.loop = THREE.LoopOnce;
+    cornerAction.loop = THREE.LoopOnce;
+    headAction.play();
+    cornerAction.play();
+    return;
+  }
+
+  if (!headAction.isRunning()) {
+    headAction.stop();
+  }
+  if (!cornerAction.isRunning()) {
+    cornerAction.stop();
+  }
+};
 
 /**
  * Particles
@@ -411,6 +453,17 @@ const tick = () => {
 
   shaderMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
+
+  raycaster.setFromCamera(mouse, camera);
+  if (akabeko) {
+    const modelIntersects = raycaster.intersectObject(akabeko);
+
+    if (modelIntersects.length) {
+      akabekoAnimation(true);
+    } else {
+      akabekoAnimation(false);
+    }
+  }
 
   // Model animation
   if (mixer) {
