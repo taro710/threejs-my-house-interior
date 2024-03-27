@@ -290,6 +290,7 @@ scene.add(overlay);
 /**
  * Model
  */
+let mixer = null;
 gltfLoader.load("myroom.glb", (gltf) => {
   scene.add(gltf.scene);
 
@@ -316,6 +317,14 @@ gltfLoader.load("myroom.glb", (gltf) => {
       child.material = bakedMaterial;
     }
   });
+
+  // Animation
+  mixer = new THREE.AnimationMixer(gltf.scene);
+  const headAction = mixer.clipAction(gltf.animations[0]);
+  const cornerAction = mixer.clipAction(gltf.animations[1]);
+
+  headAction.play();
+  cornerAction.play();
 });
 
 /**
@@ -394,12 +403,19 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  * Animate
  */
 const clock = new THREE.Clock();
-
+let previousTime = 0;
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+  const deltaTime = elapsedTime - previousTime;
+  previousTime = elapsedTime;
 
   shaderMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
+
+  // Model animation
+  if (mixer) {
+    mixer.update(deltaTime);
+  }
 
   controls.update();
 
