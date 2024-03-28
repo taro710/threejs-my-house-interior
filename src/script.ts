@@ -347,26 +347,16 @@ gltfLoader.load("myroom.glb", (gltf) => {
   // Animation
   mixer = new THREE.AnimationMixer(gltf.scene);
   headAction = mixer.clipAction(gltf.animations[0]);
-  cornerAction = mixer.clipAction(gltf.animations[1]);
 });
 
 const akabekoAnimation = (isPlaying: boolean) => {
   if (isPlaying) {
     if (headAction.isRunning()) return;
-    if (cornerAction.isRunning()) return;
     headAction.loop = THREE.LoopOnce;
-    cornerAction.loop = THREE.LoopOnce;
     headAction.play();
-    cornerAction.play();
     return;
   }
-
-  if (!headAction.isRunning()) {
-    headAction.stop();
-  }
-  if (!cornerAction.isRunning()) {
-    cornerAction.stop();
-  }
+  if (!headAction.isRunning()) headAction.stop();
 };
 
 /**
