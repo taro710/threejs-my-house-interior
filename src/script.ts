@@ -9,13 +9,25 @@ import tvFragmentShader from "./shaders/tv/fragment.glsl";
 import overlayVertexShader from "./shaders/overlay/vertex.glsl";
 import overlayFragmentShader from "./shaders/overlay/fragment.glsl";
 import gsap from "gsap";
+import {
+  lightBulb,
+  metalMaterial,
+  metalMaterial2,
+  sofaMaterial,
+  tableMaterial,
+  xtalBulb,
+  xtalMaterial,
+  xtalMetalMaterial,
+} from "./ts/materials";
 
 /**
  * Base
  */
 
 // Canvas
-const canvas = document.querySelector("canvas.webgl");
+const canvas = (document.querySelector("canvas.webgl") || undefined) as
+  | HTMLCanvasElement
+  | undefined;
 
 // Scene
 const scene = new THREE.Scene();
@@ -137,23 +149,16 @@ const loadingManager = new THREE.LoadingManager(
 // Texture loader
 const textureLoader = new THREE.TextureLoader(loadingManager);
 
+export const useTextureLoader = () => {
+  return { textureLoader };
+};
+
 const backGroundEnvironment = textureLoader.load(
   "environment/night_skyscraper.jpg"
 );
 backGroundEnvironment.mapping = THREE.EquirectangularReflectionMapping;
 backGroundEnvironment.colorSpace = THREE.SRGBColorSpace;
 scene.background = backGroundEnvironment;
-
-// /**
-//  * Environment map
-//  */
-const environmentMap = textureLoader.load("environment/environment.jpg");
-environmentMap.mapping = THREE.EquirectangularReflectionMapping;
-environmentMap.colorSpace = THREE.SRGBColorSpace;
-
-const environmentMap2 = textureLoader.load("environment/environment2.jpg");
-environmentMap2.mapping = THREE.EquirectangularReflectionMapping;
-environmentMap2.colorSpace = THREE.SRGBColorSpace;
 
 // Draco loader
 const dracoLoader = new DRACOLoader();
@@ -195,83 +200,12 @@ window.addEventListener("mousemove", (event) => {
 // Baked material
 const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture });
 
-const tableMaterial = new THREE.MeshPhysicalMaterial({
-  metalness: 0,
-  roughness: 0,
-  transmission: 0.95,
-  opacity: 1,
-  ior: 1.95,
-  envMap: environmentMap2,
-});
-
-// やや暖色寄りの反射
-const metalMaterial = new THREE.MeshPhysicalMaterial({
-  metalness: 1,
-  roughness: 0,
-  envMapIntensity: 0.9,
-  clearcoat: 1,
-  transmission: 0.95,
-  opacity: 1,
-  ior: 1,
-  envMap: environmentMap,
-  side: THREE.DoubleSide,
-});
-
-// シルバー寄りの反射
-const metalMaterial2 = new THREE.MeshPhysicalMaterial({
-  metalness: 1,
-  roughness: 0,
-  envMapIntensity: 0.9,
-  clearcoat: 1,
-  transmission: 0.95,
-  opacity: 1,
-  ior: 1,
-  envMap: environmentMap2,
-  side: THREE.DoubleSide,
-});
-
-const xtalMaterial = new THREE.MeshPhysicalMaterial({
-  metalness: 0,
-  roughness: 0,
-  envMapIntensity: 1,
-  transmission: 0.95,
-  transparent: true,
-  ior: 1.75,
-  envMap: environmentMap,
-  side: THREE.DoubleSide,
-  // ダークグレー
-  color: 0x555555,
-  opacity: 1,
-});
-
-const xtalMetalMaterial = new THREE.MeshPhysicalMaterial({
-  metalness: 1,
-  roughness: 0,
-  envMapIntensity: 1,
-  transmission: 1,
-  ior: 1.75,
-  envMap: environmentMap2,
-  color: 0xffa500,
-  side: THREE.DoubleSide,
-});
-
-const xtalBulb = new THREE.MeshBasicMaterial({ color: 0xffa500 });
-
-const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
 directionalLight1.position.set(0, 4, -2);
-scene.add(directionalLight1);
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8, 200);
 directionalLight2.position.set(-4, 1, 2);
+scene.add(directionalLight1);
 scene.add(directionalLight2);
-
-// sofaMaterial オリーブグリーン
-const sofaMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0x534719,
-  roughness: 0.5,
-});
-
-// 淡いオレンジ
-const lightBulb = new THREE.MeshBasicMaterial({ color: 0xfedcbd });
 
 const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
 pointLight1.position.set(-1.15, 0.81, 3.48);
@@ -309,38 +243,38 @@ scene.add(overlay);
 /**
  * Model
  */
-let mixer = null;
-let akabeko = null;
+let mixer: THREE.AnimationMixer;
+let akabeko: THREE.Object3D;
 let headAction: THREE.AnimationAction;
-let cornerAction: THREE.AnimationAction;
 gltfLoader.load("myroom.glb", (gltf) => {
   scene.add(gltf.scene);
 
   gltf.scene.traverse((child) => {
-    if (["CoffeeTable", "BottledGlass"].includes(child.name)) {
-      child.material = tableMaterial;
-    } else if (["BarcelonaReg"].includes(child.name)) {
-      child.material = metalMaterial;
+    const mesh = child as THREE.Mesh;
+    if (["CoffeeTable", "BottledGlass"].includes(mesh.name)) {
+      mesh.material = tableMaterial;
+    } else if (["BarcelonaReg"].includes(mesh.name)) {
+      mesh.material = metalMaterial;
     } else if (
-      ["TVReg", "SofaReg", "DiningTableReg", "StepWire"].includes(child.name)
+      ["TVReg", "SofaReg", "DiningTableReg", "StepWire"].includes(mesh.name)
     ) {
-      child.material = metalMaterial2;
-    } else if (["BarcelonaBack", "BarcelonaSeat"].includes(child.name)) {
-      child.material = sofaMaterial;
-    } else if (["LampBulb", "BottledLight"].includes(child.name)) {
-      child.material = lightBulb;
-    } else if (["Xtal"].includes(child.name)) {
-      child.material = xtalMaterial;
-    } else if (["XtalMetal"].includes(child.name)) {
-      child.material = xtalMetalMaterial;
-    } else if (["XtalLight"].includes(child.name)) {
-      child.material = xtalBulb;
-    } else if (["AkabekoBody"].includes(child.name)) {
+      mesh.material = metalMaterial2;
+    } else if (["BarcelonaBack", "BarcelonaSeat"].includes(mesh.name)) {
+      mesh.material = sofaMaterial;
+    } else if (["LampBulb", "BottledLight"].includes(mesh.name)) {
+      mesh.material = lightBulb;
+    } else if (["Xtal"].includes(mesh.name)) {
+      mesh.material = xtalMaterial;
+    } else if (["XtalMetal"].includes(mesh.name)) {
+      mesh.material = xtalMetalMaterial;
+    } else if (["XtalLight"].includes(mesh.name)) {
+      mesh.material = xtalBulb;
+    } else if (["AkabekoBody"].includes(mesh.name)) {
       // TODO: findで抜き出す
       akabeko = child;
-      child.material = bakedMaterial;
+      mesh.material = bakedMaterial;
     } else {
-      child.material = bakedMaterial;
+      mesh.material = bakedMaterial;
     }
   });
 
