@@ -1,21 +1,19 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import particlesVertexShader from "./shaders/particles/vertex.glsl";
-import particlesFragmentShader from "./shaders/particles/fragment.glsl";
-import tvVertexShader from "./shaders/tv/vertex.glsl";
-import tvFragmentShader from "./shaders/tv/fragment.glsl";
-import overlayVertexShader from "./shaders/overlay/vertex.glsl";
-import overlayFragmentShader from "./shaders/overlay/fragment.glsl";
-import gsap from "gsap";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import particlesVertexShader from './shaders/particles/vertex.glsl';
+import particlesFragmentShader from './shaders/particles/fragment.glsl';
+import tvVertexShader from './shaders/tv/vertex.glsl';
+import tvFragmentShader from './shaders/tv/fragment.glsl';
+import overlayVertexShader from './shaders/overlay/vertex.glsl';
+import overlayFragmentShader from './shaders/overlay/fragment.glsl';
+import gsap from 'gsap';
 
 /**
  * Base
  */
-const canvas = (document.querySelector("canvas.webgl") || undefined) as
-  | HTMLCanvasElement
-  | undefined;
+const canvas = (document.querySelector('canvas.webgl') || undefined) as HTMLCanvasElement | undefined;
 
 const scene = new THREE.Scene();
 
@@ -24,31 +22,40 @@ const sizes = {
   height: window.innerHeight,
 };
 
-const camera = new THREE.PerspectiveCamera(
-  45,
-  sizes.width / sizes.height,
-  0.1,
-  100
-);
+const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100);
 camera.position.x = -2;
 camera.position.y = 6.5;
 camera.position.z = 4;
 scene.add(camera);
 
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+window.addEventListener('resize', () => {
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  particlesMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+});
+
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.minDistance = 2;
 controls.maxDistance = 10;
-controls.addEventListener("change", () => {
-  const distance = camera.position.distanceTo(
-    new THREE.Vector3(-1.4, 0.18, 0.07)
-  );
+controls.addEventListener('change', () => {
+  const distance = camera.position.distanceTo(new THREE.Vector3(-1.4, 0.18, 0.07));
   camera.fov = distance * 10;
   camera.updateProjectionMatrix();
 });
 
 const mouse = new THREE.Vector2();
-window.addEventListener("mousemove", (event) => {
+window.addEventListener('mousemove', (event) => {
   mouse.x = (event.clientX / sizes.width) * 2 - 1;
   mouse.y = -(event.clientY / sizes.height) * 2 + 1;
 });
@@ -114,27 +121,22 @@ const loadingManager = new THREE.LoadingManager(
       controls.target.set(-1, 1.2, 0);
     }
 
-    console.log("Loading complete");
+    console.log('Loading complete');
   },
   () => {
-    console.log("Loading is in progress");
+    console.log('Loading is in progress');
   }
 );
 
-// Texture loader
 const textureLoader = new THREE.TextureLoader(loadingManager);
-const gltfLoader = new GLTFLoader(loadingManager).setDRACOLoader(
-  new DRACOLoader().setDecoderPath("draco/")
-);
+const gltfLoader = new GLTFLoader(loadingManager).setDRACOLoader(new DRACOLoader().setDecoderPath('draco/'));
 
 /**
  * Environment map
  */
-const environmentMap = textureLoader.load("environment/environment.jpg");
-const environmentMap2 = textureLoader.load("environment/environment2.jpg");
-const backGroundEnvironment = textureLoader.load(
-  "environment/night_skyscraper.jpg"
-);
+const environmentMap = textureLoader.load('environment/environment.jpg');
+const environmentMap2 = textureLoader.load('environment/environment2.jpg');
+const backGroundEnvironment = textureLoader.load('environment/night_skyscraper.jpg');
 environmentMap.mapping = THREE.EquirectangularReflectionMapping;
 environmentMap.colorSpace = THREE.SRGBColorSpace;
 environmentMap2.mapping = THREE.EquirectangularReflectionMapping;
@@ -146,7 +148,7 @@ scene.background = backGroundEnvironment;
 /**
  * Textures
  */
-const bakedTexture = textureLoader.load("baked.jpg");
+const bakedTexture = textureLoader.load('baked.jpg');
 bakedTexture.flipY = false;
 bakedTexture.colorSpace = THREE.SRGBColorSpace;
 
@@ -233,113 +235,6 @@ const sofaMaterial = new THREE.MeshPhysicalMaterial({
 const lightBulbMaterial1 = new THREE.MeshBasicMaterial({ color: 0xfedcbd });
 const lightBulbMaterial2 = new THREE.MeshBasicMaterial({ color: 0xffa500 });
 
-// TVモニター
-const tvMonitorMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    uTime: { value: 0 },
-  },
-  vertexShader: tvVertexShader,
-  fragmentShader: tvFragmentShader,
-  side: THREE.DoubleSide,
-});
-const tVGeometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
-const tv = new THREE.Mesh(tVGeometry, tvMonitorMaterial);
-tv.position.set(-1.39, 0.95, -2.59);
-tv.rotateY(0.5235988354713379);
-scene.add(tv);
-
-// Overlay
-const overlayGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
-const overlayMaterial = new THREE.ShaderMaterial({
-  transparent: true,
-  uniforms: {
-    uAlpha: { value: 1.0 },
-  },
-  vertexShader: overlayVertexShader,
-  fragmentShader: overlayFragmentShader,
-});
-const overlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
-scene.add(overlay);
-
-/**
- * Model
- */
-let mixer: THREE.AnimationMixer;
-let akabeko: THREE.Object3D;
-let headAction: THREE.AnimationAction;
-gltfLoader.load("myroom.glb", (gltf) => {
-  scene.add(gltf.scene);
-
-  gltf.scene.traverse((child) => {
-    const mesh = child as THREE.Mesh;
-    if (["CoffeeTable", "BottledGlass"].includes(mesh.name)) {
-      mesh.material = glassMaterial;
-    } else if (["BarcelonaReg"].includes(mesh.name)) {
-      mesh.material = metalMaterial1;
-    } else if (
-      ["TVReg", "SofaReg", "DiningTableReg", "StepWire"].includes(mesh.name)
-    ) {
-      mesh.material = metalMaterial2;
-    } else if (["BarcelonaBack", "BarcelonaSeat"].includes(mesh.name)) {
-      mesh.material = sofaMaterial;
-    } else if (["LampBulb", "BottledLight"].includes(mesh.name)) {
-      mesh.material = lightBulbMaterial1;
-    } else if (["Xtal"].includes(mesh.name)) {
-      mesh.material = glassMaterial2;
-    } else if (["XtalMetal"].includes(mesh.name)) {
-      mesh.material = copperMaterial;
-    } else if (["XtalLight"].includes(mesh.name)) {
-      mesh.material = lightBulbMaterial2;
-    } else if (["AkabekoBody"].includes(mesh.name)) {
-      // TODO: findで抜き出す
-      akabeko = child;
-      mesh.material = bakedMaterial;
-    } else {
-      mesh.material = bakedMaterial;
-    }
-  });
-
-  // Animation
-  mixer = new THREE.AnimationMixer(gltf.scene);
-  headAction = mixer.clipAction(gltf.animations[0]);
-});
-
-const akabekoAnimation = (isPlaying: boolean) => {
-  if (isPlaying) {
-    if (headAction.isRunning()) return;
-    headAction.loop = THREE.LoopOnce;
-    headAction.play();
-    return;
-  }
-  if (!headAction.isRunning()) headAction.stop();
-};
-
-/**
- * Particles
- */
-const particlesGeometry = new THREE.BufferGeometry();
-const particlesCount = 100;
-const positionArray = new Float32Array(particlesCount * 3);
-const scaleArray = new Float32Array(particlesCount);
-
-for (let i = 0; i < particlesCount; i++) {
-  positionArray[i * 3 + 0] = (Math.random() - 0.5) * 4;
-  positionArray[i * 3 + 1] = Math.random() * 1.5;
-  positionArray[i * 3 + 2] = (Math.random() - 0.5) * 4;
-
-  scaleArray[i] = Math.random();
-}
-
-particlesGeometry.setAttribute(
-  "position",
-  new THREE.BufferAttribute(positionArray, 3)
-);
-particlesGeometry.setAttribute(
-  "aScale",
-  new THREE.BufferAttribute(scaleArray, 1)
-);
-
-// Material
 const particlesMaterial = new THREE.ShaderMaterial({
   uniforms: {
     uTime: { value: 0 },
@@ -353,38 +248,101 @@ const particlesMaterial = new THREE.ShaderMaterial({
   depthWrite: false,
 });
 
-// Points
-const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-particles.position.z = -5;
-particles.position.y = 0.8;
+const tvMonitorMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+  },
+  vertexShader: tvVertexShader,
+  fragmentShader: tvFragmentShader,
+  side: THREE.DoubleSide,
+});
 
-scene.add(particles);
-
-window.addEventListener("resize", () => {
-  sizes.width = window.innerWidth;
-  sizes.height = window.innerHeight;
-
-  camera.aspect = sizes.width / sizes.height;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(sizes.width, sizes.height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  particlesMaterial.uniforms.uPixelRatio.value = Math.min(
-    window.devicePixelRatio,
-    2
-  );
+const overlayMaterial = new THREE.ShaderMaterial({
+  transparent: true,
+  uniforms: {
+    uAlpha: { value: 1.0 },
+  },
+  vertexShader: overlayVertexShader,
+  fragmentShader: overlayFragmentShader,
 });
 
 /**
- * Renderer
+ * Custom Models
  */
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: true,
+let mixer: THREE.AnimationMixer;
+let akabeko: THREE.Object3D | undefined;
+let headAction: THREE.AnimationAction;
+gltfLoader.load('myroom.glb', (gltf) => {
+  scene.add(gltf.scene);
+
+  gltf.scene.traverse((child) => {
+    const mesh = child as THREE.Mesh;
+
+    mesh.material = (() => {
+      if (['TVReg', 'SofaReg', 'DiningTableReg', 'StepWire'].includes(mesh.name)) return metalMaterial2;
+      if (['BarcelonaBack', 'BarcelonaSeat'].includes(mesh.name)) return sofaMaterial;
+      if (['CoffeeTable', 'BottledGlass'].includes(mesh.name)) return glassMaterial;
+      if (['LampBulb', 'BottledLight'].includes(mesh.name)) return lightBulbMaterial1;
+      if (['BarcelonaReg'].includes(mesh.name)) return metalMaterial1;
+      if (['XtalMetal'].includes(mesh.name)) return copperMaterial;
+      if (['XtalLight'].includes(mesh.name)) return lightBulbMaterial2;
+      if (['Xtal'].includes(mesh.name)) return glassMaterial2;
+      return bakedMaterial;
+    })();
+
+    akabeko = gltf.scene.getObjectByName('AkabekoBody');
+  });
+
+  // Animation
+  mixer = new THREE.AnimationMixer(gltf.scene);
+  headAction = mixer.clipAction(gltf.animations[0]);
 });
-renderer.setSize(sizes.width, sizes.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const akabekoAnimation = (state: 'start' | 'stop') => {
+  if (state === 'stop' && !headAction.isRunning()) {
+    headAction.stop();
+    return;
+  }
+  if (headAction.isRunning()) return;
+  headAction.loop = THREE.LoopOnce;
+  headAction.play();
+};
+
+/**
+ * Overlay
+ */
+const overlayGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
+const overlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+scene.add(overlay);
+
+/**
+ * Particles
+ */
+const particlesGeometry = new THREE.BufferGeometry();
+const particlesCount = 100;
+const positionArray = new Float32Array(particlesCount * 3);
+const scaleArray = new Float32Array(particlesCount);
+for (let i = 0; i < particlesCount; i++) {
+  positionArray[i * 3 + 0] = (Math.random() - 0.5) * 4;
+  positionArray[i * 3 + 1] = Math.random() * 1.5;
+  positionArray[i * 3 + 2] = (Math.random() - 0.5) * 4;
+  scaleArray[i] = Math.random();
+}
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3));
+particlesGeometry.setAttribute('aScale', new THREE.BufferAttribute(scaleArray, 1));
+const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+particles.position.z = -5;
+particles.position.y = 0.8;
+scene.add(particles);
+
+/**
+ * TV Monitor
+ */
+const tVGeometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
+const tv = new THREE.Mesh(tVGeometry, tvMonitorMaterial);
+tv.position.set(-1.39, 0.95, -2.59);
+tv.rotateY(0.5235988354713379);
+scene.add(tv);
 
 /**
  * Animate
@@ -404,21 +362,15 @@ const tick = () => {
     const modelIntersects = raycaster.intersectObject(akabeko);
 
     if (modelIntersects.length) {
-      akabekoAnimation(true);
+      akabekoAnimation('start');
     } else {
-      akabekoAnimation(false);
+      akabekoAnimation('stop');
     }
   }
 
-  // Model animation
-  if (mixer) {
-    mixer.update(deltaTime);
-  }
-
+  if (mixer) mixer.update(deltaTime);
   controls.update();
-
   renderer.render(scene, camera);
-
   window.requestAnimationFrame(tick);
 };
 
