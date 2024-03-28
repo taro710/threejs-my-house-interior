@@ -9,40 +9,21 @@ import tvFragmentShader from "./shaders/tv/fragment.glsl";
 import overlayVertexShader from "./shaders/overlay/vertex.glsl";
 import overlayFragmentShader from "./shaders/overlay/fragment.glsl";
 import gsap from "gsap";
-import {
-  lightBulb,
-  metalMaterial,
-  metalMaterial2,
-  sofaMaterial,
-  tableMaterial,
-  xtalBulb,
-  xtalMaterial,
-  xtalMetalMaterial,
-} from "./ts/materials";
 
 /**
  * Base
  */
-
-// Canvas
 const canvas = (document.querySelector("canvas.webgl") || undefined) as
   | HTMLCanvasElement
   | undefined;
 
-// Scene
 const scene = new THREE.Scene();
 
-/**
- * Sizes
- */
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
 };
-/**
- * Camera
- */
-// Base camera
+
 const camera = new THREE.PerspectiveCamera(
   45,
   sizes.width / sizes.height,
@@ -52,28 +33,12 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.x = -2;
 camera.position.y = 6.5;
 camera.position.z = 4;
-
 scene.add(camera);
 
-// const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
-//   type: THREE.FloatType,
-// });
-// const cubeCamera = new THREE.CubeCamera(1, 100, cubeRenderTarget);
-// scene.add(cubeCamera);
-// cubeCamera.renderTarget.mapping = THREE.CubeRefractionMapping;
-
-// cubeCamera.layers.set(1);
-
-// scene.environment = cubeRenderTarget.texture;
-// scene.environment = environmentMap;
-// scene.background = environmentMap;
-
-// Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.minDistance = 2;
 controls.maxDistance = 10;
-
 controls.addEventListener("change", () => {
   const distance = camera.position.distanceTo(
     new THREE.Vector3(-1.4, 0.18, 0.07)
@@ -81,6 +46,16 @@ controls.addEventListener("change", () => {
   camera.fov = distance * 10;
   camera.updateProjectionMatrix();
 });
+
+const mouse = new THREE.Vector2();
+window.addEventListener("mousemove", (event) => {
+  mouse.x = (event.clientX / sizes.width) * 2 - 1;
+  mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+});
+
+const raycaster = new THREE.Raycaster();
+const rayDirection = new THREE.Vector3(10, 0, 0);
+rayDirection.normalize();
 
 /**
  * Loaders
@@ -148,25 +123,25 @@ const loadingManager = new THREE.LoadingManager(
 
 // Texture loader
 const textureLoader = new THREE.TextureLoader(loadingManager);
+const gltfLoader = new GLTFLoader(loadingManager).setDRACOLoader(
+  new DRACOLoader().setDecoderPath("draco/")
+);
 
-export const useTextureLoader = () => {
-  return { textureLoader };
-};
-
+/**
+ * Environment map
+ */
+const environmentMap = textureLoader.load("environment/environment.jpg");
+const environmentMap2 = textureLoader.load("environment/environment2.jpg");
 const backGroundEnvironment = textureLoader.load(
   "environment/night_skyscraper.jpg"
 );
+environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap.colorSpace = THREE.SRGBColorSpace;
+environmentMap2.mapping = THREE.EquirectangularReflectionMapping;
+environmentMap2.colorSpace = THREE.SRGBColorSpace;
 backGroundEnvironment.mapping = THREE.EquirectangularReflectionMapping;
 backGroundEnvironment.colorSpace = THREE.SRGBColorSpace;
 scene.background = backGroundEnvironment;
-
-// Draco loader
-const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath("draco/");
-
-// GLTF loader
-const gltfLoader = new GLTFLoader(loadingManager);
-gltfLoader.setDRACOLoader(dracoLoader);
 
 /**
  * Textures
@@ -176,43 +151,90 @@ bakedTexture.flipY = false;
 bakedTexture.colorSpace = THREE.SRGBColorSpace;
 
 /**
- * Raycaster
+ * Lights
  */
-const raycaster = new THREE.Raycaster();
-let currentIntersect = null;
-const rayOrigin = new THREE.Vector3(-3, 0, 0);
-const rayDirection = new THREE.Vector3(10, 0, 0);
-rayDirection.normalize();
-
-/**
- * Mouse
- */
-const mouse = new THREE.Vector2();
-
-window.addEventListener("mousemove", (event) => {
-  mouse.x = (event.clientX / sizes.width) * 2 - 1;
-  mouse.y = -(event.clientY / sizes.height) * 2 + 1;
-});
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
+directionalLight1.position.set(0, 4, -2);
+directionalLight2.position.set(-4, 1, 2);
+pointLight1.position.set(-1.15, 0.81, 3.48);
+scene.add(directionalLight1);
+scene.add(directionalLight2);
+scene.add(pointLight1);
 
 /**
  * Materials
  */
-// Baked material
 const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture });
 
-const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight1.position.set(0, 4, -2);
-directionalLight2.position.set(-4, 1, 2);
-scene.add(directionalLight1);
-scene.add(directionalLight2);
+const glassMaterial = new THREE.MeshPhysicalMaterial({
+  metalness: 0,
+  roughness: 0,
+  transmission: 0.95,
+  opacity: 1,
+  ior: 1.95,
+  envMap: environmentMap2,
+});
 
-const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
-pointLight1.position.set(-1.15, 0.81, 3.48);
-scene.add(pointLight1);
+const glassMaterial2 = new THREE.MeshPhysicalMaterial({
+  metalness: 0,
+  roughness: 0,
+  envMapIntensity: 1,
+  transmission: 0.95,
+  transparent: true,
+  ior: 1.75,
+  envMap: environmentMap,
+  side: THREE.DoubleSide,
+  color: 0x555555, // ダークグレー
+  opacity: 1,
+});
+
+// やや暖色寄りの反射
+const metalMaterial1 = new THREE.MeshPhysicalMaterial({
+  metalness: 1,
+  roughness: 0,
+  envMapIntensity: 0.9,
+  transmission: 0.95,
+  opacity: 1,
+  ior: 1,
+  envMap: environmentMap,
+  side: THREE.DoubleSide,
+});
+
+// シルバー寄りの反射
+const metalMaterial2 = new THREE.MeshPhysicalMaterial({
+  metalness: 1,
+  roughness: 0,
+  envMapIntensity: 0.9,
+  transmission: 0.95,
+  opacity: 1,
+  ior: 1,
+  envMap: environmentMap2,
+  side: THREE.DoubleSide,
+});
+
+const copperMaterial = new THREE.MeshPhysicalMaterial({
+  metalness: 1,
+  roughness: 0,
+  envMapIntensity: 1,
+  transmission: 1,
+  ior: 1.75,
+  envMap: environmentMap2,
+  color: 0xffa500,
+  side: THREE.DoubleSide,
+});
+
+const sofaMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x534719,
+  roughness: 0.5,
+});
+
+const lightBulbMaterial1 = new THREE.MeshBasicMaterial({ color: 0xfedcbd });
+const lightBulbMaterial2 = new THREE.MeshBasicMaterial({ color: 0xffa500 });
 
 // TVモニター
-const shaderMaterial = new THREE.ShaderMaterial({
+const tvMonitorMaterial = new THREE.ShaderMaterial({
   uniforms: {
     uTime: { value: 0 },
   },
@@ -220,9 +242,8 @@ const shaderMaterial = new THREE.ShaderMaterial({
   fragmentShader: tvFragmentShader,
   side: THREE.DoubleSide,
 });
-
 const tVGeometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
-const tv = new THREE.Mesh(tVGeometry, shaderMaterial);
+const tv = new THREE.Mesh(tVGeometry, tvMonitorMaterial);
 tv.position.set(-1.39, 0.95, -2.59);
 tv.rotateY(0.5235988354713379);
 scene.add(tv);
@@ -252,9 +273,9 @@ gltfLoader.load("myroom.glb", (gltf) => {
   gltf.scene.traverse((child) => {
     const mesh = child as THREE.Mesh;
     if (["CoffeeTable", "BottledGlass"].includes(mesh.name)) {
-      mesh.material = tableMaterial;
+      mesh.material = glassMaterial;
     } else if (["BarcelonaReg"].includes(mesh.name)) {
-      mesh.material = metalMaterial;
+      mesh.material = metalMaterial1;
     } else if (
       ["TVReg", "SofaReg", "DiningTableReg", "StepWire"].includes(mesh.name)
     ) {
@@ -262,13 +283,13 @@ gltfLoader.load("myroom.glb", (gltf) => {
     } else if (["BarcelonaBack", "BarcelonaSeat"].includes(mesh.name)) {
       mesh.material = sofaMaterial;
     } else if (["LampBulb", "BottledLight"].includes(mesh.name)) {
-      mesh.material = lightBulb;
+      mesh.material = lightBulbMaterial1;
     } else if (["Xtal"].includes(mesh.name)) {
-      mesh.material = xtalMaterial;
+      mesh.material = glassMaterial2;
     } else if (["XtalMetal"].includes(mesh.name)) {
-      mesh.material = xtalMetalMaterial;
+      mesh.material = copperMaterial;
     } else if (["XtalLight"].includes(mesh.name)) {
-      mesh.material = xtalBulb;
+      mesh.material = lightBulbMaterial2;
     } else if (["AkabekoBody"].includes(mesh.name)) {
       // TODO: findで抜き出す
       akabeko = child;
@@ -375,7 +396,7 @@ const tick = () => {
   const deltaTime = elapsedTime - previousTime;
   previousTime = elapsedTime;
 
-  shaderMaterial.uniforms.uTime.value = elapsedTime;
+  tvMonitorMaterial.uniforms.uTime.value = elapsedTime;
   particlesMaterial.uniforms.uTime.value = elapsedTime;
 
   raycaster.setFromCamera(mouse, camera);
