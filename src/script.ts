@@ -9,6 +9,7 @@ import tvFragmentShader from './shaders/tv/fragment.glsl';
 import overlayVertexShader from './shaders/overlay/vertex.glsl';
 import overlayFragmentShader from './shaders/overlay/fragment.glsl';
 import * as CANNON from 'cannon-es';
+import CannonDebugger from 'cannon-es-debugger';
 import gsap from 'gsap';
 
 /**
@@ -44,6 +45,7 @@ window.addEventListener('resize', () => {
 
   particlesMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
 });
+renderer.shadowMap.enabled = true;
 
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -268,6 +270,69 @@ const overlayMaterial = new THREE.ShaderMaterial({
 });
 
 /**
+ * Physics
+ */
+// const world = new CANNON.World();
+// const setGravity = () => {
+//   world.gravity.set(0, -9.82, -0.5);
+// };
+// setTimeout(setGravity, 4000);
+// setTimeout(() => {
+//   console.log('Allow sleep');
+//   world.allowSleep = true;
+// }, 5000);
+
+// world.broadphase = new CANNON.SAPBroadphase(world);
+// world.allowSleep = false;
+// world.gravity.set(0, 0, 0);
+// // Default material
+// const defaultMaterial = new CANNON.Material('default');
+// const defaultContactMaterial = new CANNON.ContactMaterial(defaultMaterial, defaultMaterial, {
+//   friction: 0,
+//   restitution: 0.3,
+// });
+// world.defaultContactMaterial = defaultContactMaterial;
+// // Floor
+// const floorShape = new CANNON.Plane();
+// const floorBody = new CANNON.Body();
+// floorBody.mass = 0;
+// floorBody.position.set(0, 0, 0);
+// floorBody.addShape(floorShape);
+// floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
+// world.addBody(floorBody);
+// const wallBody = new CANNON.Body();
+// wallBody.mass = 0;
+// wallBody.position.set(0, 0, -3);
+// wallBody.addShape(new CANNON.Plane());
+// wallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0);
+// world.addBody(wallBody);
+// const cannonDebugger = new CannonDebugger(scene, world);
+
+// // Create box
+// const boxGeometry = new THREE.BoxGeometry(1.1, 2, 0.05);
+// const boxMaterial = new THREE.MeshStandardMaterial({
+//   metalness: 0.3,
+//   roughness: 0.4,
+//   envMapIntensity: 0.5,
+//   map: bakedTexture,
+// });
+// const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
+// mesh.castShadow = true;
+// // mesh.position.set(-6, 0, 0.94);
+// scene.add(mesh);
+// const objectsToUpdate = [];
+// const body = new CANNON.Body({
+//   mass: 1,
+//   position: new CANNON.Vec3(-4, 1.55, -2.94),
+//   shape: new CANNON.Box(new CANNON.Vec3(0.5, 1, 0.025)),
+//   material: defaultMaterial,
+//   quaternion: new CANNON.Quaternion(0, 0, 0.01),
+// });
+
+// world.addBody(body);
+// objectsToUpdate.push({ mesh, body });
+
+/**
  * Custom Models
  */
 let mixer: THREE.AnimationMixer;
@@ -275,7 +340,6 @@ let akabeko: THREE.Object3D | undefined;
 let headAction: THREE.AnimationAction;
 gltfLoader.load('myroom.glb', (gltf) => {
   scene.add(gltf.scene);
-
   gltf.scene.traverse((child) => {
     const mesh = child as THREE.Mesh;
 
@@ -346,49 +410,6 @@ tv.rotateY(0.5235988354713379);
 scene.add(tv);
 
 /**
- * Physics
- */
-const world = new CANNON.World();
-world.broadphase = new CANNON.SAPBroadphase(world);
-world.allowSleep = true;
-world.gravity.set(0, -9.82, 0);
-// Default material
-const defaultMaterial = new CANNON.Material('default');
-const defaultContactMaterial = new CANNON.ContactMaterial(defaultMaterial, defaultMaterial, {
-  friction: 0.1,
-  restitution: 0.7,
-});
-world.defaultContactMaterial = defaultContactMaterial;
-// Floor
-const floorShape = new CANNON.Plane();
-const floorBody = new CANNON.Body();
-floorBody.mass = 0;
-floorBody.position.set(0, -0.5, 0);
-floorBody.addShape(floorShape);
-floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
-world.addBody(floorBody);
-
-// Create box
-const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-const boxMaterial = new THREE.MeshStandardMaterial({
-  metalness: 0.3,
-  roughness: 0.4,
-  envMapIntensity: 0.5,
-});
-const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
-// mesh.position.set(-2, 2, 0);
-scene.add(mesh);
-const objectsToUpdate = [];
-const body = new CANNON.Body({
-  mass: 1,
-  position: new CANNON.Vec3(-3, 2, 0),
-  shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
-  material: defaultMaterial,
-});
-world.addBody(body);
-objectsToUpdate.push({ mesh, body });
-
-/**
  * Animate
  */
 const clock = new THREE.Clock();
@@ -414,13 +435,13 @@ const tick = () => {
 
   if (mixer) mixer.update(deltaTime);
 
-  // Update physics
-  world.step(1 / 60, deltaTime, 3);
-
-  for (const object of objectsToUpdate) {
-    object.mesh.position.copy(object.body.position);
-    object.mesh.quaternion.copy(object.body.quaternion);
-  }
+  // // Update physics
+  // world.step(1 / 60, deltaTime, 3);
+  // for (const object of objectsToUpdate) {
+  //   object.mesh.position.copy(object.body.position);
+  //   object.mesh.quaternion.copy(object.body.quaternion);
+  // }
+  // cannonDebugger.update();
 
   controls.update();
   renderer.render(scene, camera);
