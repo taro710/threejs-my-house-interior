@@ -343,7 +343,7 @@ const overlayMaterial = new THREE.ShaderMaterial({
  * Custom Models
  */
 let mixer: THREE.AnimationMixer;
-let akabeko: THREE.Object3D | undefined;
+let akabeko: THREE.Object3D[];
 let headAction: THREE.AnimationAction;
 gltfLoader.load('myroom.glb', (gltf) => {
   scene.add(gltf.scene);
@@ -362,7 +362,7 @@ gltfLoader.load('myroom.glb', (gltf) => {
       return bakedMaterial;
     })();
 
-    akabeko = gltf.scene.getObjectByName('AkabekoBody');
+    akabeko = [gltf.scene.getObjectByName('AkabekoHead'), gltf.scene.getObjectByName('AkabekoBody')].filter((object) => object) as THREE.Object3D[];
   });
 
   // Animation
@@ -431,7 +431,7 @@ const tick = () => {
 
   raycaster.setFromCamera(mouse, camera);
   if (akabeko) {
-    const modelIntersects = raycaster.intersectObject(akabeko);
+    const modelIntersects = raycaster.intersectObjects(akabeko);
 
     if (modelIntersects.length) {
       akabekoAnimation('start');
