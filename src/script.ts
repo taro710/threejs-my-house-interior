@@ -70,6 +70,7 @@ rayDirection.normalize();
 /**
  * Loaders
  */
+const loadingElement = document.querySelector('.loading');
 const loadingManager = new THREE.LoadingManager(
   () => {
     gsap.to(overlayMaterial.uniforms.uAlpha, {
@@ -124,10 +125,16 @@ const loadingManager = new THREE.LoadingManager(
       controls.target.set(-1, 1.2, 0);
     }
 
-    console.log('Loading complete');
+    if (!loadingElement) return;
+    setTimeout(() => {
+      loadingElement.remove();
+    }, 3000);
   },
-  () => {
-    console.log('Loading is in progress');
+  // Progress
+  (_, itemsLoaded, itemsTotal) => {
+    const progressRatio = itemsLoaded / itemsTotal;
+    if (!loadingElement) return;
+    loadingElement.innerHTML = `${Math.round(progressRatio * 100)}%`;
   }
 );
 

@@ -8,6 +8,17 @@ body {
   overflow: hidden;
 }
 
+.loading {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  color: white;
+  z-index: 1;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+}
+
 .webgl {
   position: fixed;
   top: 0;
