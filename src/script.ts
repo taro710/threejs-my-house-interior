@@ -353,7 +353,7 @@ gltfLoader.load('myroom.glb', (gltf) => {
     mesh.material = (() => {
       if (['TVReg', 'SofaReg', 'DiningTableReg', 'StepWire'].includes(mesh.name)) return metalMaterial2;
       if (['BarcelonaBack', 'BarcelonaSeat'].includes(mesh.name)) return sofaMaterial;
-      if (['CoffeeTable', 'BottledGlass'].includes(mesh.name)) return glassMaterial;
+      if (['CoffeeTable', 'BottledGlass', 'FlowerBottle'].includes(mesh.name)) return glassMaterial;
       if (['LampBulb', 'BottledLight'].includes(mesh.name)) return lightBulbMaterial1;
       if (['BarcelonaReg'].includes(mesh.name)) return metalMaterial1;
       if (['XtalMetal'].includes(mesh.name)) return copperMaterial;
