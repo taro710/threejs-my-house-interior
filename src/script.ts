@@ -86,7 +86,7 @@ const loadingManager = new THREE.LoadingManager(
 
       gsap.to(camera.position, {
         duration: 1,
-        x: -3.6,
+        x: -5,
         delay: 0.3,
       });
       gsap.to(camera.position, {
@@ -96,7 +96,7 @@ const loadingManager = new THREE.LoadingManager(
       });
       gsap.to(camera.position, {
         duration: 1,
-        z: 5.2,
+        z: 4,
         delay: 0.3,
       });
 
@@ -122,7 +122,7 @@ const loadingManager = new THREE.LoadingManager(
         delay: 0.3,
       });
 
-      controls.target.set(-1, 1.2, 0);
+      controls.target.set(-1, 1.2, 1);
     }
 
     if (!loadingElement) return;
@@ -165,8 +165,8 @@ bakedTexture.colorSpace = THREE.SRGBColorSpace;
 /**
  * Lights
  */
-const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.4);
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
 const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
 directionalLight1.position.set(0, 4, -2);
 directionalLight2.position.set(-4, 1, 2);
@@ -412,7 +412,7 @@ scene.add(particles);
  */
 const tVGeometry = new THREE.PlaneGeometry(0.82, 0.48, 1, 1);
 const tv = new THREE.Mesh(tVGeometry, tvMonitorMaterial);
-tv.position.set(-1.39, 0.95, -2.59);
+tv.position.set(-1.39, 0.88, -2.59);
 tv.rotateY(0.5235988354713379);
 scene.add(tv);
 
