@@ -170,7 +170,7 @@ const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
 const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
 directionalLight1.position.set(0, 4, -2);
 directionalLight2.position.set(-4, 1, 2);
-pointLight1.position.set(-1.15, 0.81, 3.48);
+pointLight1.position.set(-1.112, 0.81, 3.257);
 scene.add(directionalLight1);
 scene.add(directionalLight2);
 scene.add(pointLight1);
@@ -357,7 +357,10 @@ gltfLoader.load('myroom.glb', (gltf) => {
       if (['LampBulb', 'BottledLight'].includes(mesh.name)) return lightBulbMaterial1;
       if (['BarcelonaReg'].includes(mesh.name)) return metalMaterial1;
       if (['XtalMetal'].includes(mesh.name)) return copperMaterial;
-      if (['XtalLight'].includes(mesh.name)) return lightBulbMaterial2;
+      if (['XtalLight'].includes(mesh.name)) {
+        console.log(mesh.position);
+        return lightBulbMaterial2;
+      }
       if (['Xtal'].includes(mesh.name)) return glassMaterial2;
       return bakedMaterial;
     })();
