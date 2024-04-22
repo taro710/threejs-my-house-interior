@@ -165,14 +165,14 @@ bakedTexture.colorSpace = THREE.SRGBColorSpace;
 /**
  * Lights
  */
-// const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.4);
-// const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.4);
+const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
 const pointLight1 = new THREE.PointLight(0xf68b1f, 0.5, 1);
-// directionalLight1.position.set(0, 4, -2);
-// directionalLight2.position.set(-4, 1, 2);
+directionalLight1.position.set(0, 4, -2);
+directionalLight2.position.set(-4, 1, 2);
 pointLight1.position.set(-1.15, 0.81, 3.48);
-// scene.add(directionalLight1);
-// scene.add(directionalLight2);
+scene.add(directionalLight1);
+scene.add(directionalLight2);
 scene.add(pointLight1);
 
 /**
@@ -237,10 +237,10 @@ const copperMaterial = new THREE.MeshPhysicalMaterial({
   side: THREE.DoubleSide,
 });
 
-// const sofaMaterial = new THREE.MeshPhysicalMaterial({
-//   color: 0x534719,
-//   roughness: 0.5,
-// });
+const sofaMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0x534719,
+  roughness: 0.5,
+});
 
 const lightBulbMaterial1 = new THREE.MeshBasicMaterial({ color: 0xfedcbd });
 const lightBulbMaterial2 = new THREE.MeshBasicMaterial({ color: 0xffa500 });
@@ -352,7 +352,7 @@ gltfLoader.load('myroom.glb', (gltf) => {
 
     mesh.material = (() => {
       if (['TVReg', 'SofaReg', 'DiningTableReg', 'StepWire'].includes(mesh.name)) return metalMaterial2;
-      // if (['BarcelonaBack', 'BarcelonaSeat'].includes(mesh.name)) return sofaMaterial;
+      if (['BarcelonaBack', 'BarcelonaSeat'].includes(mesh.name)) return sofaMaterial;
       if (['CoffeeTable', 'BottledGlass', 'FlowerBottle'].includes(mesh.name)) return glassMaterial;
       if (['LampBulb', 'BottledLight'].includes(mesh.name)) return lightBulbMaterial1;
       if (['BarcelonaReg'].includes(mesh.name)) return metalMaterial1;
