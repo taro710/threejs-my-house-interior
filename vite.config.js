@@ -13,6 +13,7 @@ export default defineConfig({
   },
   build: {
     outDir: '../docs',
+    base: './',
     emptyOutDir: true, // Empty the folder first
     sourcemap: true, // Add sourcemap
     rollupOptions: {
