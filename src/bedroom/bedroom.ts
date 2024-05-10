@@ -136,7 +136,7 @@ const gltfLoader = new GLTFLoader(loadingManager).setDRACOLoader(new DRACOLoader
 /**
  * Environment map
  */
-const environmentMap = textureLoader.load('/environment/environment.jpg');
+const environmentMap = textureLoader.load('/threejs-my-house-interior/environment/environment.jpg');
 const environmentMap2 = textureLoader.load('environment/environment2.jpg');
 const backGroundEnvironment = textureLoader.load('environment/night_skyscraper.jpg');
 environmentMap.mapping = THREE.EquirectangularReflectionMapping;
