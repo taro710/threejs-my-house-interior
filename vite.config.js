@@ -2,10 +2,11 @@ import glsl from 'vite-plugin-glsl';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
+const root = resolve(__dirname, 'src');
+
 export default defineConfig({
-  root: 'src/',
+  root,
   publicDir: '../static/',
-  base: './',
   server: {
     host: true, // Open to local network and display URL
     open: !('SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env), // Open if it's not a CodeSandbox
@@ -16,8 +17,8 @@ export default defineConfig({
     sourcemap: true, // Add sourcemap
     rollupOptions: {
       input: {
-        main: resolve('src', 'index.html'),
-        bedroom: resolve('src', 'bedroom/index.html'),
+        main: resolve(root, 'index.html'),
+        bedroom: resolve(root, 'bedroom', 'index.html'),
       },
     },
   },
