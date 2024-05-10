@@ -137,8 +137,8 @@ const gltfLoader = new GLTFLoader(loadingManager).setDRACOLoader(new DRACOLoader
  * Environment map
  */
 const environmentMap = textureLoader.load('/threejs-my-house-interior/environment/environment.jpg');
-const environmentMap2 = textureLoader.load('environment/environment2.jpg');
-const backGroundEnvironment = textureLoader.load('environment/night_skyscraper.jpg');
+const environmentMap2 = textureLoader.load('/threejs-my-house-interior/environment/environment2.jpg');
+const backGroundEnvironment = textureLoader.load('/threejs-my-house-interior/environment/night_skyscraper.jpg');
 environmentMap.mapping = THREE.EquirectangularReflectionMapping;
 environmentMap.colorSpace = THREE.SRGBColorSpace;
 environmentMap2.mapping = THREE.EquirectangularReflectionMapping;
@@ -150,7 +150,7 @@ scene.background = backGroundEnvironment;
 /**
  * Textures
  */
-const bakedTexture = textureLoader.load('/bedroomBaked.jpg');
+const bakedTexture = textureLoader.load('/threejs-my-house-interior/bedroomBaked.jpg');
 bakedTexture.flipY = false;
 bakedTexture.colorSpace = THREE.SRGBColorSpace;
 
@@ -207,7 +207,7 @@ const overlayMaterial = new THREE.ShaderMaterial({
 /**
  * Custom Models
  */
-gltfLoader.load('/bedroom.glb', (gltf) => {
+gltfLoader.load('/threejs-my-house-interior/bedroom.glb', (gltf) => {
   scene.add(gltf.scene);
   gltf.scene.traverse((child) => {
     const mesh = child as THREE.Mesh;
