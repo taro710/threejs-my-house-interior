@@ -19,12 +19,12 @@ const sizes = {
 };
 
 const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100);
-camera.position.x = -2;
-camera.position.y = 6.5;
+camera.position.x = 1;
+camera.position.y = 2;
 camera.position.z = 4;
 scene.add(camera);
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 window.addEventListener('resize', () => {
@@ -72,32 +72,24 @@ const loadingManager = new THREE.LoadingManager(
     });
 
     if (window.innerWidth > 768) {
-      camera.position.x = -3.07;
-      camera.position.y = 0.93;
-      camera.position.z = 3.41;
-
       gsap.to(camera.position, {
         duration: 1,
-        x: -5,
+        x: 1,
         delay: 0.3,
       });
       gsap.to(camera.position, {
         duration: 1,
-        y: 2.2,
+        y: 2,
         delay: 0.3,
       });
       gsap.to(camera.position, {
         duration: 1,
-        z: 4,
+        z: 4.5,
         delay: 0.3,
       });
 
-      controls.target.set(-0.5, 1.2, 0);
+      controls.target.set(1, 2, 2);
     } else {
-      camera.position.x = -3.07;
-      camera.position.y = 0.93;
-      camera.position.z = 3.41;
-
       gsap.to(camera.position, {
         duration: 1,
         x: -1.0,
