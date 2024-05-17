@@ -79,7 +79,7 @@ const loadingManager = new THREE.LoadingManager(
       });
       gsap.to(camera.position, {
         duration: 1,
-        y: 2,
+        y: 2.5,
         delay: 0.3,
       });
       gsap.to(camera.position, {
@@ -88,7 +88,7 @@ const loadingManager = new THREE.LoadingManager(
         delay: 0.3,
       });
 
-      controls.target.set(1, 2, 2);
+      controls.target.set(1, 2.3, 2);
     } else {
       gsap.to(camera.position, {
         duration: 1,
