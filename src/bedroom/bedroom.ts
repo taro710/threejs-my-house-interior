@@ -4,6 +4,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import overlayVertexShader from '../shaders/overlay/vertex.glsl';
 import overlayFragmentShader from '../shaders/overlay/fragment.glsl';
+import holographicVertexShader from '../shaders/hologram/vertex.glsl';
+import holographicFragmentShader from '../shaders/hologram/fragment.glsl';
+import holographicFragmentShader2 from '../shaders/hologram/fragment2.glsl';
 import gsap from 'gsap';
 
 /**
@@ -55,10 +58,6 @@ window.addEventListener('mousemove', (event) => {
   mouse.y = -(event.clientY / sizes.height) * 2 + 1;
 });
 
-const raycaster = new THREE.Raycaster();
-const rayDirection = new THREE.Vector3(10, 0, 0);
-rayDirection.normalize();
-
 /**
  * Loaders
  */
@@ -88,7 +87,7 @@ const loadingManager = new THREE.LoadingManager(
         delay: 0.3,
       });
 
-      controls.target.set(1, 2.3, 2);
+      controls.target.set(1, 2.3, 1);
     } else {
       gsap.to(camera.position, {
         duration: 1,
@@ -160,32 +159,34 @@ const glassMaterial = new THREE.MeshPhysicalMaterial({
   envMap: environmentMap2,
 });
 
-const glassMaterial2 = new THREE.MeshPhysicalMaterial({
-  metalness: 0,
-  roughness: 0,
-  envMapIntensity: 1,
-  transmission: 0.95,
-  transparent: true,
-  ior: 1.75,
-  envMap: environmentMap,
+const hologramMaterial = new THREE.ShaderMaterial({
+  vertexShader: holographicVertexShader,
+  fragmentShader: holographicFragmentShader,
+  uniforms: {
+    uTime: { value: 0 },
+    uColor: new THREE.Uniform(new THREE.Color(0x0080ff)),
+  },
+  // transparent: true,
   side: THREE.DoubleSide,
-  color: 0x555555, // ダークグレー
-  opacity: 1,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
 });
 
-const copperMaterial = new THREE.MeshPhysicalMaterial({
-  metalness: 1,
-  roughness: 0,
-  envMapIntensity: 1,
-  transmission: 1,
-  ior: 1.75,
-  envMap: environmentMap2,
-  color: 0xffa500,
+const hologramBeamMaterial = new THREE.ShaderMaterial({
+  vertexShader: holographicVertexShader,
+  fragmentShader: holographicFragmentShader2,
+  uniforms: {
+    uTime: { value: 0 },
+    uColor: new THREE.Uniform(new THREE.Color(0x0080ff)),
+  },
+  // transparent: true,
   side: THREE.DoubleSide,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+  opacity: 0.5,
 });
 
 const lightBulbMaterial1 = new THREE.MeshBasicMaterial({ color: 0xfedcbd });
-const lightBulbMaterial2 = new THREE.MeshBasicMaterial({ color: 0xffa500 });
 
 const overlayMaterial = new THREE.ShaderMaterial({
   transparent: true,
@@ -207,12 +208,8 @@ gltfLoader.load('/threejs-my-house-interior/bedroom.glb', (gltf) => {
     mesh.material = (() => {
       if (['TableGlass', 'BottledGlass'].includes(mesh.name)) return glassMaterial;
       if (['BottledLight'].includes(mesh.name)) return lightBulbMaterial1;
-      if (['XtalMetal'].includes(mesh.name)) return copperMaterial;
-      if (['XtalLight'].includes(mesh.name)) {
-        console.log(mesh.position);
-        return lightBulbMaterial2;
-      }
-      if (['Xtal'].includes(mesh.name)) return glassMaterial2;
+      if (['HologramBeam'].includes(mesh.name)) return hologramBeamMaterial;
+      if (['HologramScreen'].includes(mesh.name)) return hologramMaterial;
       return bakedMaterial;
     })();
   });
@@ -232,10 +229,9 @@ const clock = new THREE.Clock();
 let previousTime = 0;
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - previousTime;
   previousTime = elapsedTime;
 
-  raycaster.setFromCamera(mouse, camera);
+  hologramMaterial.uniforms.uTime.value = elapsedTime;
 
   controls.update();
   renderer.render(scene, camera);
