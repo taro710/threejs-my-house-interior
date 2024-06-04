@@ -58,6 +58,10 @@ window.addEventListener('mousemove', (event) => {
   mouse.y = -(event.clientY / sizes.height) * 2 + 1;
 });
 
+const raycaster = new THREE.Raycaster();
+const rayDirection = new THREE.Vector3(10, 0, 0);
+rayDirection.normalize();
+
 /**
  * Loaders
  */
@@ -216,6 +220,13 @@ gltfLoader.load('/threejs-my-house-interior/bedroom.glb', (gltf) => {
 });
 
 /**
+ *  Builtin Models
+ */
+const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.15, 0.07, 80), hologramMaterial);
+torusKnot.position.set(2.8, 2.4, 0.5);
+scene.add(torusKnot);
+
+/**
  * Overlay
  */
 const overlayGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
@@ -226,12 +237,31 @@ scene.add(overlay);
  * Animate
  */
 const clock = new THREE.Clock();
-let previousTime = 0;
+const hologramSpeed = { x: 0.2, y: 0.2 };
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  previousTime = elapsedTime;
 
   hologramMaterial.uniforms.uTime.value = elapsedTime;
+  torusKnot.rotation.x = elapsedTime * hologramSpeed.x;
+  torusKnot.rotation.y = elapsedTime * hologramSpeed.y;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  const modelIntersects = raycaster.intersectObjects([torusKnot]);
+
+  if (modelIntersects.length) {
+    hologramSpeed.y = 10;
+  } else {
+    // FIXME: 要調整
+    const anime = gsap.to(hologramSpeed, {
+      duration: 0.3,
+      y: 0.2,
+    });
+    if (anime.isActive()) {
+      return;
+    }
+    anime.play();
+  }
 
   controls.update();
   renderer.render(scene, camera);
