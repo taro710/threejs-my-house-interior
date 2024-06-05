@@ -226,6 +226,16 @@ const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.15, 0.07, 80), ho
 torusKnot.position.set(2.8, 2.4, 0.5);
 scene.add(torusKnot);
 
+const siri1 = new THREE.Mesh(new THREE.CircleGeometry(0.021, 32, 32), new THREE.MeshBasicMaterial({ color: 0xababab }));
+const siri2 = siri1.clone();
+
+siri1.position.set(-0.7799419164657593, 1.4630173873901367, -0.19310614466667175);
+siri2.position.set(-0.7799419164657593, 1.4630173873901367, 1.0781683921813965);
+siri1.rotation.x = -Math.PI / 2;
+siri2.rotation.x = -Math.PI / 2;
+scene.add(siri1);
+scene.add(siri2);
+
 /**
  * Overlay
  */
@@ -262,6 +272,9 @@ const tick = () => {
     }
     anime.play();
   }
+
+  siri1.scale.set(Math.sin(elapsedTime), Math.sin(elapsedTime), 0);
+  siri2.scale.set(Math.sin(elapsedTime), Math.sin(elapsedTime), 0);
 
   controls.update();
   renderer.render(scene, camera);
