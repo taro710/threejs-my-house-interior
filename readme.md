@@ -1,5 +1,7 @@
 # My House Interior
 
+<img src="https://img.shields.io/badge/-Typescript-black.svg?logo=typescript&style=for-the-badge">
+
 Reproduction of my house interior using Three.js and GLSL
 
 ## Living room
